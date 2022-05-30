@@ -1,6 +1,8 @@
 addrb
 -----
 
+![addrb](addrb.png)
+
 `addrb`, the command line **addr**ess **b**ook.
 
 ## Build
@@ -45,3 +47,6 @@ addrb -r john doe
 This command will connect to the CardDAV server, sync all address books/contacts
 locally and perform a lookup for *john doe*. It will display you the contact(s) 
 if any was found.
+
+Find more flags and info with `addrb --help`.
+
