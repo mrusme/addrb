@@ -50,3 +50,12 @@ if any was found.
 
 Find more flags and info with `addrb --help`.
 
+## FAQ
+
+- Q: Does `addrb` write/modify any contact information?
+  A: Nope, so far it's read-only and does not support updating vCards.
+- Q: Can I use it with my local address book?
+  A: Nope, as of right now `addrb` only supports CardDAV servers to sync with.
+- Q: Does it support HTTP Digest auth?
+  A: Nope, only HTTP Basic auth.
+
