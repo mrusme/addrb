@@ -2,7 +2,6 @@ package store
 
 import (
   "encoding/json"
-  "fmt"
 
   "github.com/agnivade/levenshtein"
   "github.com/emersion/go-vcard"
@@ -34,7 +33,6 @@ func (s *Store) Upsert(vcs []*vcard.Card) (error) {
     for _, vc := range vcs {
       mvc, err := json.Marshal(vc)
       if err != nil {
-        fmt.Printf("%s\n", err)
         return err
       }
       tx.Set(vc.Get(vcard.FieldUID).Value, string(mvc), nil)
@@ -48,20 +46,16 @@ func (s *Store) FindBy(key string, val string) ([]vcard.Card, error) {
   var vcards []vcard.Card
 
   err := s.db.View(func(tx *buntdb.Tx) error {
-    fmt.Printf("VIEW\n")
     return tx.Ascend("", func(k, v string) bool {
-      fmt.Printf("ASC\n")
       var vc vcard.Card
       err := json.Unmarshal([]byte(v), &vc)
       if err != nil {
-        fmt.Printf("%s\n", err)
         return true
       }
 
       vcv := vc.PreferredValue(key)
       distance := levenshtein.ComputeDistance(vcv, val)
-      fmt.Printf("Distance %f\n", distance)
-      if distance < 8 {
+      if distance <= 3 {
         vcards = append(vcards, vc)
       }
 

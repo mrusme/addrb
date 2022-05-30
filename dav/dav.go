@@ -78,7 +78,7 @@ func (dav *DAV) RefreshAddressBook(path string) (error) {
     },
     AllProp: true,
   }
-  query.Limit = 10
+  // query.Limit = 10
 
   dav.objects[path], err = dav.cdClient.QueryAddressBook(path, query)
   if err != nil {
