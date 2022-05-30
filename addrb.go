@@ -5,9 +5,8 @@ import (
   "os"
 
   "github.com/emersion/go-vcard"
-  "github.com/emersion/go-webdav"
-  "github.com/emersion/go-webdav/carddav"
-
+  "github.com/mrusme/addrb/dav"
+  "github.com/mrusme/addrb/store"
 )
 
 
@@ -16,34 +15,36 @@ func main() {
   password := os.Getenv("CARDDAV_PASSWORD")
   endpoint := os.Getenv("CARDDAV_ENDPOINT")
 
-  httpClient := webdav.HTTPClientWithBasicAuth(nil, username, password)
-
-  cd, err := carddav.NewClient(httpClient, endpoint)
+  db, err := store.Open(os.Getenv("ADDRB_DB"))
   if err != nil {
     fmt.Printf("%s\n", err)
     return
   }
+  defer db.Close()
 
-  s, err := cd.FindAddressBookHomeSet(fmt.Sprintf("principals/%s", username))
-  fmt.Printf("%s\n%s\n", s, err)
+  cd, err := dav.New(endpoint, username, password)
+  fmt.Printf("%s\n", err)
+  err = cd.RefreshAddressBooks()
+  fmt.Printf("%s\n", err)
 
-  ab, err := cd.FindAddressBooks(s)
-  fmt.Printf("%v\n%s\n", ab[0].Path, err)
+  paths := cd.GetAddressBookPaths()
+  fmt.Printf("%s\n", paths[0])
+  vcs := cd.GetVcardsInAddressBook(paths[0])
+  fmt.Printf("%d\n", len(vcs))
 
-  multiGet := new(carddav.AddressBookQuery)
-  multiGet.DataRequest = carddav.AddressDataRequest{
-    Props: []string{
-      vcard.FieldEmail,
-      vcard.FieldUID,
-    },
-    AllProp: true,
+  err = db.Upsert(vcs)
+  if err != nil {
+    fmt.Printf("%s\n", err)
   }
-  multiGet.Limit = 10
 
-  obj, err := cd.QueryAddressBook(ab[0].Path, multiGet)
+  foundVcs, err := db.FindBy(vcard.FieldFormattedName, "Johnny Bravo")
+  if err != nil {
+    fmt.Printf("%s\n", err)
+  }
 
-  for _, vc := range obj {
-    fmt.Printf("%s: %s\n", vc.Card.Get(vcard.FieldUID).Value, vc.Card.PreferredValue(vcard.FieldFormattedName))
+  fmt.Printf("FOUND:\n")
+  for _, vc := range foundVcs {
+    fmt.Printf("%s: %s\n", vc.Get(vcard.FieldUID).Value, vc.PreferredValue(vcard.FieldFormattedName))
   }
 
   return
