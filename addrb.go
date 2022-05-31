@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"image"
-  "image/color"
+	"image/color"
 	"os"
 	"strings"
 
@@ -25,6 +26,7 @@ func main() () {
 
   var refresh    bool
   var lookupAttr string
+  var outputJson bool
 
   flag.StringVar(
     &username,
@@ -62,6 +64,12 @@ func main() () {
     "l",
     vcard.FieldFormattedName,
     "Lookup attribute",
+  )
+  flag.BoolVar(
+    &outputJson,
+    "j",
+    false,
+    "Output JSON",
   )
 
   flag.Parse()
@@ -130,6 +138,17 @@ func main() () {
           photoRender = pix.RenderExt(false, false)
         }
       }
+    }
+
+    if outputJson == true {
+      b, err := json.MarshalIndent(vc, "", "  ")
+      if err != nil {
+        fmt.Printf("%s\n", err)
+        os.Exit(1)
+      }
+
+      fmt.Printf(string(b))
+      os.Exit(0)
     }
 
     fmt.Printf(
