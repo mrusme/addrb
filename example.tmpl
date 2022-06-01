@@ -1,0 +1,11 @@
+
+{{ RenderPhoto (.PreferredValue "PHOTO") }}
+
+{{ .PreferredValue "FN" }}
+----------------------------------------
+Birthday:  {{ .PreferredValue "BDAY" }}
+Tel.:      {{ .PreferredValue "TEL" }}
+Email:     {{ .PreferredValue "EMAIL" }}
+Address:
+{{ RenderAddress (.PreferredValue "ADR") }}
+

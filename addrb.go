@@ -1,20 +1,22 @@
 package main
 
 import (
-	"encoding/base64"
-	"encoding/json"
-	"flag"
-	"fmt"
-	"image"
-	"image/color"
-	"os"
-	"strings"
+  "encoding/base64"
+  "encoding/json"
+  "flag"
+  "fmt"
+  "image"
+  "image/color"
+  "os"
+  "strings"
+  "path"
+  "text/template"
 
-	"github.com/eliukblau/pixterm/pkg/ansimage"
+  "github.com/eliukblau/pixterm/pkg/ansimage"
 
-	"github.com/emersion/go-vcard"
-	"github.com/mrusme/addrb/dav"
-	"github.com/mrusme/addrb/store"
+  "github.com/emersion/go-vcard"
+  "github.com/mrusme/addrb/dav"
+  "github.com/mrusme/addrb/store"
 )
 
 
@@ -23,6 +25,7 @@ func main() () {
   var password   string
   var endpoint   string
   var addrbDb    string
+  var addrbTmpl  string
 
   var refresh    bool
   var lookupAttr string
@@ -51,6 +54,12 @@ func main() () {
     "database",
     os.Getenv("ADDRB_DB"),
     "Local vcard database",
+  )
+  flag.StringVar(
+    &addrbTmpl,
+    "template",
+    os.Getenv("ADDRB_TEMPLATE"),
+    "addrb template file",
   )
 
   flag.BoolVar(
@@ -113,6 +122,18 @@ func main() () {
     }
   }
 
+  var t *template.Template
+  if len(addrbTmpl) > 0 && outputJson == false {
+    t = template.Must(template.New("addrb").Funcs( template.FuncMap{
+      "RenderPhoto": func(photo string) string {
+        return RenderPhoto(photo)
+      },
+      "RenderAddress": func(address string) string {
+        return RenderAddress(address)
+      },
+    }).ParseFiles(addrbTmpl))
+  }
+
   foundVcs, err := db.FindBy(lookupAttr, lookupVal)
   if err != nil {
     fmt.Printf("%s\n", err)
@@ -121,24 +142,7 @@ func main() () {
 
   for _, vc := range foundVcs {
     photo := vc.PreferredValue(vcard.FieldPhoto)
-    photoRender := ""
-    if len(photo) > 0 {
-      reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(photo))
-      m, _, err := image.Decode(reader)
-      if err == nil {
-        pix, err := ansimage.NewScaledFromImage(
-          m,
-          20,
-          20,
-          color.Transparent,
-          ansimage.ScaleModeResize,
-          ansimage.NoDithering,
-        )
-        if err == nil {
-          photoRender = pix.RenderExt(false, false)
-        }
-      }
-    }
+    photoRender := RenderPhoto(photo)
 
     if outputJson == true {
       b, err := json.MarshalIndent(vc, "", "  ")
@@ -149,20 +153,50 @@ func main() () {
 
       fmt.Printf(string(b))
       os.Exit(0)
+    } else {
+      if len(addrbTmpl) > 0 {
+        err := t.ExecuteTemplate(os.Stdout, path.Base(addrbTmpl), vc)
+        if err != nil {
+          fmt.Printf("%s\n", err)
+          os.Exit(1)
+        }
+      } else {
+        fmt.Printf(
+          "\n%s\n%s\n----------------------------------------\nBirthday:  %s\nTel.:      %s\nEmail:     %s\n\nAddress:\n%s\n\n",
+          photoRender,
+          vc.PreferredValue(vcard.FieldFormattedName),
+          vc.PreferredValue(vcard.FieldBirthday),
+          vc.PreferredValue(vcard.FieldTelephone),
+          vc.PreferredValue(vcard.FieldEmail),
+          RenderAddress(vc.PreferredValue(vcard.FieldAddress)),
+        )
+      }
     }
-
-    fmt.Printf(
-      "\n%s\n%s\n----------------------------------------\nBirthday:  %s\nTel.:      %s\nEmail:     %s\n\nAddress:\n%s\n\n",
-      photoRender,
-      vc.PreferredValue(vcard.FieldFormattedName),
-      vc.PreferredValue(vcard.FieldBirthday),
-      vc.PreferredValue(vcard.FieldTelephone),
-      vc.PreferredValue(vcard.FieldEmail),
-      RenderAddress(vc.PreferredValue(vcard.FieldAddress)),
-    )
   }
 
   os.Exit(0)
+}
+
+func RenderPhoto(photo string) (string) {
+  photoRender := ""
+  if len(photo) > 0 {
+    reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(photo))
+    m, _, err := image.Decode(reader)
+    if err == nil {
+      pix, err := ansimage.NewScaledFromImage(
+        m,
+        20,
+        20,
+        color.Transparent,
+        ansimage.ScaleModeResize,
+        ansimage.NoDithering,
+      )
+      if err == nil {
+        photoRender = pix.RenderExt(false, false)
+      }
+    }
+  }
+  return photoRender
 }
 
 func RenderAddress(address string) (string) {
