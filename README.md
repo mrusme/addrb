@@ -50,6 +50,31 @@ if any was found.
 
 Find more flags and info with `addrb --help`.
 
+
+## Templating
+
+You can customize the regular output using templating. The template can either
+be passed using the `--template <file>` flag or by exporting `ADDRB_TEMPLATE` 
+in the in the environment.
+
+The templating format is the [Go standard `text/template`][1] format. The
+following special functions are available:
+
+- `RenderPhoto` for rendering a base64 string as image (usually the contact 
+  `PHOTO`)
+- `RenderAddress` for rendering a contact address
+
+Available property names that are available can be found by displaying a 
+contact as JSON (using the `-j` flag). E.g. "FN" is the full name, which can be
+retrieved using the `.PreferredValue` method:
+
+```tmpl
+{{ .PreferredValue "FN" }}
+```
+
+An example template can be found [here][2].
+
+
 ## FAQ
 
 - Q: Does `addrb` write/modify any contact information?
@@ -58,4 +83,8 @@ Find more flags and info with `addrb --help`.
   A: Nope, as of right now `addrb` only supports CardDAV servers to sync with.
 - Q: Does it support HTTP Digest auth?
   A: Nope, only HTTP Basic auth.
+
+
+[1]: https://pkg.go.dev/text/template
+[2]: example.tmpl
 
