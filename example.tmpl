@@ -10,5 +10,7 @@ Tel.:      {{ $tel }}{{ end}}
 Email:     {{ $email }}{{end}}
 {{ range $addr := .Values "ADR" }}
 Address:
-{{ RenderAddress ($addr) }}
-{{ end }}
+{{ RenderAddress ($addr) }}{{ end }}
+Notes:
+{{ .PreferredValue "NOTE" }}
+
