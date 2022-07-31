@@ -72,7 +72,9 @@ retrieved using the `.PreferredValue` method:
 {{ .PreferredValue "FN" }}
 ```
 
-An example template can be found [here][2].
+An example template can be found [here][2]. In order to make use of the
+template, it can be copied to e.g. `~/.config/addrb.tmpl` and have
+`ADDRB_TEMPLATE=~/.config/addrb.tmpl` exported in your `.zshrc`/`.bashrc`/etc.
 
 
 ## FAQ

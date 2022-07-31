@@ -4,8 +4,11 @@
 {{ .PreferredValue "FN" }}
 ----------------------------------------
 Birthday:  {{ .PreferredValue "BDAY" }}
-Tel.:      {{ .PreferredValue "TEL" }}
-Email:     {{ .PreferredValue "EMAIL" }}
+{{ range $tel := .Values "TEL" }}
+Tel.:      {{ $tel }}{{ end}}
+{{ range $email := .Values "EMAIL" }}
+Email:     {{ $email }}{{end}}
+{{ range $addr := .Values "ADR" }}
 Address:
-{{ RenderAddress (.PreferredValue "ADR") }}
-
+{{ RenderAddress ($addr) }}
+{{ end }}
