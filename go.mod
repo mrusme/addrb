@@ -20,5 +20,5 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tidwall/rtred v0.1.2 // indirect
 	github.com/tidwall/tinyqueue v0.1.1 // indirect
-	golang.org/x/image v0.0.0-20220617043117-41969df76e82 // indirect
+	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539 // indirect
 )
