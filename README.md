@@ -11,7 +11,7 @@ addrb
 go build .
 ```
 
-## Run
+## Usage
 
 Either export all necessary variables to your ENV or set them as command line
 flags:
@@ -47,6 +47,12 @@ addrb -r john doe
 This command will connect to the CardDAV server, sync all address books/contacts
 locally and perform a lookup for *john doe*. It will display you the contact(s) 
 if any was found.
+
+You can also output contacts as JSON format using the `-j` flag:
+
+```sh
+addrb -j john doe
+```
 
 Find more flags and info with `addrb --help`.
 
