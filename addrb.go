@@ -85,7 +85,7 @@ func main() () {
 
   args := flag.Args()
 
-  if len(args) == 0 {
+  if len(args) == 0 && refresh == false {
     flag.PrintDefaults()
     os.Exit(1)
   }
@@ -120,6 +120,10 @@ func main() () {
       fmt.Printf("%s\n", err)
       os.Exit(1)
     }
+  }
+
+  if len(args) == 0 {
+    os.Exit(0)
   }
 
   var t *template.Template
