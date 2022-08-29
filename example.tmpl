@@ -3,7 +3,7 @@
 
 {{ .PreferredValue "FN" }}
 ----------------------------------------
-Birthday:  {{ .PreferredValue "BDAY" }}
+Birthday:  {{ RenderBirthdate (.PreferredValue "BDAY") }}
 {{ range $tel := .Values "TEL" }}
 Tel.:      {{ $tel }}{{ end}}
 {{ range $email := .Values "EMAIL" }}

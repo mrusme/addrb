@@ -8,11 +8,12 @@ import (
   "image"
   "image/color"
   "os"
-  "strings"
   "path"
+  "strings"
   "text/template"
 
   "github.com/eliukblau/pixterm/pkg/ansimage"
+  "github.com/araddon/dateparse"
 
   "github.com/emersion/go-vcard"
   "github.com/mrusme/addrb/dav"
@@ -135,6 +136,9 @@ func main() () {
       "RenderAddress": func(address string) string {
         return RenderAddress(address)
       },
+      "RenderBirthdate": func(dt string) string {
+        return RenderBirthdate(dt)
+      },
     }).ParseFiles(addrbTmpl))
   }
 
@@ -169,7 +173,7 @@ func main() () {
           "\n%s\n%s\n----------------------------------------\nBirthday:  %s\nTel.:      %s\nEmail:     %s\n\nAddress:\n%s\n\n",
           photoRender,
           vc.PreferredValue(vcard.FieldFormattedName),
-          vc.PreferredValue(vcard.FieldBirthday),
+          RenderBirthdate(vc.PreferredValue(vcard.FieldBirthday)),
           vc.PreferredValue(vcard.FieldTelephone),
           vc.PreferredValue(vcard.FieldEmail),
           RenderAddress(vc.PreferredValue(vcard.FieldAddress)),
@@ -235,5 +239,14 @@ func RenderAddress(address string) (string) {
   }
 
   return ""
+}
+
+func RenderBirthdate(dt string) string {
+  t, err := dateparse.ParseAny(dt)
+  if err != nil {
+    return dt
+  }
+
+  return t.Format("02 Jan 2006")
 }
 
