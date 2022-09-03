@@ -1,0 +1,31 @@
+BEGIN:VCARD
+VERSION:3.0
+UID:test_entry_1
+N:Doe;Jane;;;
+FN:Jane Doe
+EMAIL;type=INTERNET;type=pref:janedoe@example.com
+TEL;type=pref:+10000001
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+UID:test_entry_2
+N:Smith;Doctor;;;
+FN:Doctor Smith
+TEL;type=WORK;type=VOICE;type=pref:+390000000002
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+UID:test_entry_3
+N:Doe;John;;;
+FN:John Doe
+ORG:E-Corp;
+EMAIL;type=INTERNET;type=HOME;type=pref:johndoe@example.com
+TEL;type=pref:+10000003
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+UID:test_entry_4
+N:Oaktree;Eve;;;
+FN:Eve Oaktree
+TEL;type=pref:+340000000004
+END:VCARD
