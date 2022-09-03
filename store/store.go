@@ -46,8 +46,6 @@ func (s *Store) Upsert(vcs []*vcard.Card) (error) {
 func (s *Store) FindBy(key string, val string) ([]vcard.Card, error) {
   var vcards []vcard.Card
 
-
-
   err := s.db.View(func(tx *buntdb.Tx) error {
     return tx.Ascend("", func(k, v string) bool {
       var vc vcard.Card
@@ -84,6 +82,28 @@ func (s *Store) FindBy(key string, val string) ([]vcard.Card, error) {
         totalDistance += distances[x]
       }
       if totalDistance <= (len(distances) * 2) {
+        vcards = append(vcards, vc)
+      }
+
+      return true
+    })
+  })
+
+  return vcards, err
+}
+
+func (s *Store) FindByFn(fn func(vc *vcard.Card) bool) ([]vcard.Card, error) {
+  var vcards []vcard.Card
+
+  err := s.db.View(func(tx *buntdb.Tx) error {
+    return tx.Ascend("", func(k, v string) bool {
+      var vc vcard.Card
+      err := json.Unmarshal([]byte(v), &vc)
+      if err != nil {
+        return true
+      }
+
+      if add := fn(&vc); add == true {
         vcards = append(vcards, vc)
       }
 

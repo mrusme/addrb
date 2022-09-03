@@ -1,27 +1,29 @@
 package main
 
 import (
-  "encoding/base64"
-  "encoding/json"
-  "flag"
-  "fmt"
-  "image"
-  "image/color"
-  "os"
-  "path"
-  "strings"
-  "text/template"
+	"encoding/base64"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"image"
+	"image/color"
+	"os"
+	"path"
+	"strings"
+	"text/template"
+	"time"
 
-  "github.com/eliukblau/pixterm/pkg/ansimage"
-  "github.com/araddon/dateparse"
+	"github.com/araddon/dateparse"
+	"github.com/eliukblau/pixterm/pkg/ansimage"
 
-  "github.com/emersion/go-vcard"
-  "github.com/mrusme/addrb/dav"
-  "github.com/mrusme/addrb/store"
+	"github.com/emersion/go-vcard"
+	"github.com/mrusme/addrb/dav"
+	"github.com/mrusme/addrb/store"
 )
 
 
 func main() () {
+  var err        error
   var username   string
   var password   string
   var endpoint   string
@@ -29,6 +31,7 @@ func main() () {
   var addrbTmpl  string
 
   var refresh    bool
+  var birthdays  bool
   var lookupAttr string
   var outputJson bool
 
@@ -69,6 +72,12 @@ func main() () {
     false,
     "Refresh local vcard database",
   )
+  flag.BoolVar(
+    &birthdays,
+    "birthdays",
+    false,
+    "List contacts that have their birthday today",
+  )
   flag.StringVar(
     &lookupAttr,
     "l",
@@ -86,7 +95,9 @@ func main() () {
 
   args := flag.Args()
 
-  if len(args) == 0 && refresh == false {
+  if len(args) == 0 &&
+     refresh == false &&
+     birthdays == false {
     flag.PrintDefaults()
     os.Exit(1)
   }
@@ -123,7 +134,8 @@ func main() () {
     }
   }
 
-  if len(args) == 0 {
+  if len(args) == 0 &&
+  birthdays == false {
     os.Exit(0)
   }
 
@@ -142,13 +154,33 @@ func main() () {
     }).ParseFiles(addrbTmpl))
   }
 
-  foundVcs, err := db.FindBy(lookupAttr, lookupVal)
+  var foundVcs []vcard.Card
+  var foundBdays []time.Time
+  var today time.Time = time.Now()
+
+  if birthdays == true {
+
+    foundVcs, err = db.FindByFn(func(vc *vcard.Card) bool {
+      dt, errr := dateparse.ParseAny(vc.PreferredValue(vcard.FieldBirthday))
+      if errr == nil {
+        if dt.Month() == today.Month() &&
+           dt.Day()   == today.Day()    {
+          foundBdays = append(foundBdays, dt)
+          return true
+        }
+      }
+
+      return false
+    })
+  } else {
+    foundVcs, err = db.FindBy(lookupAttr, lookupVal)
+  }
   if err != nil {
     fmt.Printf("%s\n", err)
     os.Exit(1)
   }
 
-  for _, vc := range foundVcs {
+  for idx, vc := range foundVcs {
     photo := vc.PreferredValue(vcard.FieldPhoto)
     photoRender := RenderPhoto(photo)
 
@@ -169,15 +201,23 @@ func main() () {
           os.Exit(1)
         }
       } else {
-        fmt.Printf(
-          "\n%s\n%s\n----------------------------------------\nBirthday:  %s\nTel.:      %s\nEmail:     %s\n\nAddress:\n%s\n\n",
-          photoRender,
-          vc.PreferredValue(vcard.FieldFormattedName),
-          RenderBirthdate(vc.PreferredValue(vcard.FieldBirthday)),
-          vc.PreferredValue(vcard.FieldTelephone),
-          vc.PreferredValue(vcard.FieldEmail),
-          RenderAddress(vc.PreferredValue(vcard.FieldAddress)),
-        )
+        if birthdays == true {
+          fmt.Printf(
+            "%s (%d)\n",
+            vc.PreferredValue(vcard.FieldFormattedName),
+            (today.Year() - foundBdays[idx].Year()),
+          )
+        } else {
+          fmt.Printf(
+            "\n%s\n%s\n----------------------------------------\nBirthday:  %s\nTel.:      %s\nEmail:     %s\n\nAddress:\n%s\n\n",
+            photoRender,
+            vc.PreferredValue(vcard.FieldFormattedName),
+            RenderBirthdate(vc.PreferredValue(vcard.FieldBirthday)),
+            vc.PreferredValue(vcard.FieldTelephone),
+            vc.PreferredValue(vcard.FieldEmail),
+            RenderAddress(vc.PreferredValue(vcard.FieldAddress)),
+          )
+        }
       }
     }
   }
