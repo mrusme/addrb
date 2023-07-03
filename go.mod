@@ -6,7 +6,7 @@ require (
 	github.com/agnivade/levenshtein v1.1.1
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/eliukblau/pixterm v1.3.1
-	github.com/emersion/go-vcard v0.0.0-20230331202150-f3d26859ccd3
+	github.com/emersion/go-vcard v0.0.0-20230626131229-38c18b295bbd
 	github.com/emersion/go-webdav v0.4.0
 	github.com/tidwall/buntdb v1.3.0
 )
@@ -21,5 +21,5 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/rtred v0.1.2 // indirect
 	github.com/tidwall/tinyqueue v0.1.1 // indirect
-	golang.org/x/image v0.7.0 // indirect
+	golang.org/x/image v0.8.0 // indirect
 )
