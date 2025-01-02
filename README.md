@@ -33,6 +33,12 @@ would export something like this as `CARDDAV_ENDPOINT`:
 export CARDDAV_ENDPOINT='https://my.baik.al/dav.php/'
 ```
 
+If you're using iCloud for example, you would eport something like this as `CARDDAV_ENDPOINT`:
+
+```sh
+export CARDDAV_ENDPOINT='https://contacts.icloud.com/<DSID>/carddavhome/card/'
+```
+
 The `ADDRB_DB` is the local contacts database in order to not need to contact
 the CardDAV for every lookup. You might set it to something like this:
 
