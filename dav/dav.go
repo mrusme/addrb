@@ -3,6 +3,7 @@ package dav
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/emersion/go-vcard"
 	"github.com/emersion/go-webdav"
@@ -41,14 +42,18 @@ func New(endpoint, username, password string) (*DAV, error) {
 		return nil, err
 	}
 
-	dav.addrbookHomeSet, err =
-		dav.cdClient.FindAddressBookHomeSet(
-			context.Background(),
-			fmt.Sprintf("principals/%s",
-				dav.username,
-			))
-	if err != nil {
-		return dav, err
+	if strings.HasSuffix(dav.endpoint, ".icloud.com") {
+		dav.addrbookHomeSet = dav.endpoint
+	} else {
+		dav.addrbookHomeSet, err =
+			dav.cdClient.FindAddressBookHomeSet(
+				context.Background(),
+				fmt.Sprintf("principals/%s",
+					dav.username,
+				))
+		if err != nil {
+			return dav, err
+		}
 	}
 
 	dav.addrbooks, err =
