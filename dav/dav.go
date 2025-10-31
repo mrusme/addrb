@@ -34,10 +34,8 @@ func New(endpoint, username, password string) (*DAV, error) {
 	dav.username = username
 	dav.password = password
 
-	dav.httpClient =
-		webdav.HTTPClientWithBasicAuth(nil, dav.username, dav.password)
-	dav.cdClient, err =
-		carddav.NewClient(dav.httpClient, dav.endpoint)
+	dav.httpClient = webdav.HTTPClientWithBasicAuth(nil, dav.username, dav.password)
+	dav.cdClient, err = carddav.NewClient(dav.httpClient, dav.endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -45,19 +43,17 @@ func New(endpoint, username, password string) (*DAV, error) {
 	if strings.HasSuffix(dav.endpoint, ".icloud.com") {
 		dav.addrbookHomeSet = dav.endpoint
 	} else {
-		dav.addrbookHomeSet, err =
-			dav.cdClient.FindAddressBookHomeSet(
-				context.Background(),
-				fmt.Sprintf("principals/%s",
-					dav.username,
-				))
+		dav.addrbookHomeSet, err = dav.cdClient.FindAddressBookHomeSet(
+			context.Background(),
+			fmt.Sprintf("principals/%s",
+				dav.username,
+			))
 		if err != nil {
 			return dav, err
 		}
 	}
 
-	dav.addrbooks, err =
-		dav.cdClient.FindAddressBooks(context.Background(), dav.addrbookHomeSet)
+	dav.addrbooks, err = dav.cdClient.FindAddressBooks(context.Background(), dav.addrbookHomeSet)
 
 	return dav, nil
 }
@@ -93,8 +89,7 @@ func (dav *DAV) RefreshAddressBook(path string) error {
 	}
 	// query.Limit = 10
 
-	dav.objects[path], err =
-		dav.cdClient.QueryAddressBook(context.Background(), path, query)
+	dav.objects[path], err = dav.cdClient.QueryAddressBook(context.Background(), path, query)
 	if err != nil {
 		return err
 	}

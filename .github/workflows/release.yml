@@ -15,7 +15,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: 1.18
+        go-version: 1.24.1
 
     - name: Test
       run: |
@@ -25,7 +25,7 @@ jobs:
       uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
-        version: latest
+        version: '~> v2'
         args: release --rm-dist --timeout 80m
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
